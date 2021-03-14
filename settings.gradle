@@ -1,0 +1,3 @@
+include ':mention'
+include ':app'
+rootProject.name = "MentionSample"
