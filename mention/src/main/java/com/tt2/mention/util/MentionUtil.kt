@@ -19,16 +19,20 @@ import java.util.regex.Pattern
 
 
 class MentionUtil(
-    private val clickCallback: (String, String) -> Unit,
     private val input: EditText,
     private val button: Button,
     private val recyclerViewMentions: RecyclerView,
     private val memberList: List<IMention>,
     private val context: Context,
+    private val callbackListener:ClickCallback,
     private val prefixConvert: String?=null,
     private val postfixConvert: String?=null,
     @DrawableRes private val placeHolder: Int
 ) {
+    interface ClickCallback{
+        fun callback(convertedText: String, boldText: String)
+    }
+
     private lateinit var mentionAdapter: MentionListAdapter
 
     var lastMatchWord = ""
@@ -176,39 +180,39 @@ class MentionUtil(
     }
 
     private fun textToBackendFormat(prefixConvert: String?, postfixConvert: String?) {
-        var processedText = input.text.toString()
+        var convertedText = input.text.toString()
         var patternToConvert = ""
-        var unProcessedText = input.text.toString()
+        var boldText = input.text.toString()
         var showWord = ""
 
         mentionAdapter.getAllData().forEach { member ->
             val guess = "@" + member.name.replace(' ', '_').trim()
-            var index: Int = processedText.indexOf(guess, ignoreCase = true)
+            var index: Int = convertedText.indexOf(guess, ignoreCase = true)
             while (index >= 0) {
                 patternToConvert = prefixConvert + member.id + postfixConvert
-                processedText = processedText.replaceRange(
+                convertedText = convertedText.replaceRange(
                     index,
                     index + guess.length,
                     patternToConvert
                 )
-                index = processedText.indexOf(guess, patternToConvert.length, true)
+                index = convertedText.indexOf(guess, patternToConvert.length, true)
             }
         }
         mentionAdapter.getAllData().forEach { member ->
             val guess = "@" + member.name.replace(' ', '_').trim()
-            var index: Int = unProcessedText.indexOf(guess, ignoreCase = true)
+            var index: Int = boldText.indexOf(guess, ignoreCase = true)
             while (index >= 0) {
                 showWord = " ***@${member.name}*** "
-                unProcessedText = unProcessedText.replaceRange(
+                boldText = boldText.replaceRange(
                     index,
                     index + guess.length,
                     showWord
                 )
-                index = unProcessedText.indexOf(guess, index+showWord.length, true)
+                index = boldText.indexOf(guess, index+showWord.length, true)
             }
         }
         hideMentionList()
-        clickCallback.invoke(processedText, unProcessedText)
-        Log.v("backendText", "$processedText show: $unProcessedText")
+        callbackListener.callback(convertedText, boldText)
+        Log.v("processedText", "$convertedText blodText: $boldText")
     }
 }

@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.tt2.mention.util.MentionUtil
 import com.tt2.mentionsample.model.MentionSampleModel
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(),MentionUtil.ClickCallback {
     private lateinit var input:EditText
     private lateinit var result:TextView
     private lateinit var button: Button
@@ -31,20 +31,20 @@ class MainActivity : AppCompatActivity() {
     }
     private fun initMention(resultMemberList: List<MentionSampleModel>) {
         MentionUtil(
-            clickCallback = ::backendTextCallBackToSend,
             input = input,
             button = button,
             recyclerViewMentions = mentionRecyclerView,
             memberList = resultMemberList,
             context = applicationContext,
+            callbackListener = this,
             placeHolder = R.drawable.all_avatarplaceholder,
             prefixConvert = " ***{user_reference_id:",
             postfixConvert = "*** "
         )
     }
 
-    private fun backendTextCallBackToSend(convertedText: String, boldText: String) {
+    override fun callback(convertedText: String, boldText: String) {
         val text = "Processed text: $convertedText \n Unprocessed text: $boldText "
-     result.text = text
+        result.text = text
     }
 }
