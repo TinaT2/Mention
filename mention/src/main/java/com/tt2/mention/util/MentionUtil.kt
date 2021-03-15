@@ -25,6 +25,8 @@ class MentionUtil(
     private val recyclerViewMentions: RecyclerView,
     private val memberList: List<IMention>,
     private val context: Context,
+    private val prefixConvert: String?=null,
+    private val postfixConvert: String?=null,
     @DrawableRes private val placeHolder: Int
 ) {
     private lateinit var mentionAdapter: MentionListAdapter
@@ -33,29 +35,12 @@ class MentionUtil(
     var lastMatchWordIndex = 0
     var userVsProgrammaticallyChange = true
 
-//    companion object {
-//        fun getInstance(
-//            clickCallback: (String, String) -> Unit,
-//             input: EditText, button: ImageButton,
-//            recyclerViewMentions: RecyclerView,
-//            memberList: List<IMention>,
-//            @DrawableRes placeHolder: Int
-//        ) = MentionUtil(
-//            clickCallback,
-//            input,
-//            button,
-//            recyclerViewMentions,
-//            memberList,
-//            placeHolder
-//        )
-//    }
-
     init {
         initUiViews()
     }
 
     private fun initUiViews() {
-        button.setOnClickListener { textToBackendFormat() }
+        button.setOnClickListener { textToBackendFormat(prefixConvert,postfixConvert) }
         mentionListener()
         initMentionAdapter()
     }
@@ -70,13 +55,13 @@ class MentionUtil(
 
 
     private fun mentionListener() {
-        val mentionLastRegex = "\\B@[\\w\\s]*"
+        val mentionRegex = "\\B@[\\w\\s]*"
         try {
             input.doOnTextChanged { text, _, _, _ ->
                 if (userVsProgrammaticallyChange) {
                     if (!text.isNullOrEmpty() && !text.isNullOrBlank()) {
                         val textToSearch = text.subSequence(0, input.selectionStart)
-                        val lastMentionRegexPattern = Pattern.compile(mentionLastRegex)
+                        val lastMentionRegexPattern = Pattern.compile(mentionRegex)
                         val lastMentionRegexMatcher =
                             lastMentionRegexPattern.matcher(textToSearch)
                         val lastLinesMentionList = mutableListOf<String>()
@@ -190,7 +175,7 @@ class MentionUtil(
         )
     }
 
-    private fun textToBackendFormat() {
+    private fun textToBackendFormat(prefixConvert: String?, postfixConvert: String?) {
         var processedText = input.text.toString()
         var patternToConvert = ""
         var unProcessedText = input.text.toString()
@@ -200,7 +185,7 @@ class MentionUtil(
             val guess = "@" + member.name.replace(' ', '_').trim()
             var index: Int = processedText.indexOf(guess, ignoreCase = true)
             while (index >= 0) {
-                patternToConvert = " ***{user_reference_id:${member.id}}*** "
+                patternToConvert = prefixConvert + member.id + postfixConvert
                 processedText = processedText.replaceRange(
                     index,
                     index + guess.length,
@@ -219,7 +204,7 @@ class MentionUtil(
                     index + guess.length,
                     showWord
                 )
-                index = unProcessedText.indexOf(guess, showWord.length, true)
+                index = unProcessedText.indexOf(guess, index+showWord.length, true)
             }
         }
         hideMentionList()

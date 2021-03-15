@@ -5,7 +5,6 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.RecyclerView
 import com.tt2.mention.util.MentionUtil
 import com.tt2.mentionsample.model.MentionSampleModel
@@ -20,7 +19,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val list = listOf<MentionSampleModel>(MentionSampleModel("Tina","",0),MentionSampleModel("Sara","",1),MentionSampleModel("John","",2))
+        val list = listOf(MentionSampleModel("Tina","",0),MentionSampleModel("Sara","",1),MentionSampleModel("John","",2))
         initUiViews()
         initMention(list)
     }
@@ -32,18 +31,20 @@ class MainActivity : AppCompatActivity() {
     }
     private fun initMention(resultMemberList: List<MentionSampleModel>) {
         MentionUtil(
-            ::backendTextCallBackToSend,
-            input,
+            clickCallback = ::backendTextCallBackToSend,
+            input = input,
             button = button,
             recyclerViewMentions = mentionRecyclerView,
             memberList = resultMemberList,
             context = applicationContext,
-            placeHolder = R.drawable.all_avatarplaceholder
+            placeHolder = R.drawable.all_avatarplaceholder,
+            prefixConvert = " ***{user_reference_id:",
+            postfixConvert = "*** "
         )
     }
 
-    private fun backendTextCallBackToSend(processedText: String, unProcessedText: String) {
-        val text = "Processed text: $processedText \n Unprocessed text: $unProcessedText "
+    private fun backendTextCallBackToSend(convertedText: String, boldText: String) {
+        val text = "Processed text: $convertedText \n Unprocessed text: $boldText "
      result.text = text
     }
 }
