@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity(), MentionUtil.ClickCallback {
             callbackListener = this,
             placeHolder = R.drawable.all_avatarplaceholder,
             prefixConvert = " ***{user_reference_id:",
-            postfixConvert = "*** "
+            postfixConvert = "}*** "
         )
     }
 
