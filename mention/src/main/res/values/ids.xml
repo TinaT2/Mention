@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="avatar" type="id"/>
+    <item name="cardView_avatar" type="id"/>
+    <item name="name" type="id"/>
+</resources>
